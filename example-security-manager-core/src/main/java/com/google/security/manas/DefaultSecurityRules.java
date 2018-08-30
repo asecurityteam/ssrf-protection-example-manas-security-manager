@@ -53,16 +53,6 @@ public class DefaultSecurityRules {
   private static void addMiscPermissions(SecurityPolicy policy) {
     // AWT determines Linux distribution by attempting to read various /etc/*-release files
     policy.addPath("/etc/*", java.awt.GraphicsEnvironment.class.getName(), FileOperation.READ);
-
-    String[] fontPaths = defaultFontPathProvider.get();
-    String sunGraphicsEnvClassName = getGraphicsEnvironmentClassName();
-    for (String path : fontPaths) {
-      if (!"/-".equals(Utility.makePathRecursive(path))) {
-        policy.addPath(path, sunGraphicsEnvClassName, FileOperation.READ);
-        policy.addPath(Utility.makePathRecursive(path), sunGraphicsEnvClassName,
-                FileOperation.READ);
-      }
-    }
   }
 
   private static void addDevicePermissions(SecurityPolicy policy) {
@@ -113,20 +103,4 @@ public class DefaultSecurityRules {
     return sun.java2d.SunGraphicsEnvironment.class.getName();
   }
 
-  private static class SunFontPathSupplier implements Supplier<String[]> {
-
-    public SunFontPathSupplier() {
-      // Initialize graphics environment, required by FontManager.
-      GraphicsEnvironment.getLocalGraphicsEnvironment();
-    }
-
-    @Override
-    public String[] get() {
-      // TODO(meder): There's currently no other way to retrieve OS-dependent font paths
-      @SuppressWarnings("sunapi")
-      String fontDirs = sun.font.FontManager.getFontPath("true".equalsIgnoreCase(
-              System.getProperty("sun.java2d.noType1Font")));
-      return fontDirs.split(File.pathSeparator);
-    }
-  }
 }
