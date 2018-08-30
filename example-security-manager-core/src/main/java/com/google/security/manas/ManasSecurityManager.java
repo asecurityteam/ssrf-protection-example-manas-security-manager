@@ -22,6 +22,7 @@ import com.google.common.base.Preconditions;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FilePermission;
+import java.lang.reflect.Member;
 import java.net.InetAddress;
 import java.security.Permission;
 import java.util.Arrays;
@@ -316,12 +317,21 @@ public final class ManasSecurityManager extends SecurityManager implements Secur
     // set the field to null thus disabling security manager.
     // additionally disallow access to private members of any of the classes
     // in this package.
-    if (java_lang_System_name.equalsIgnoreCase(clazz.getName())) {
-      throw new SecurityException("Security violation! Access to " +
-          "java.lang.System members disallowed!");
-    } else if (manas_package_name.equalsIgnoreCase(clazz.getPackage().getName())){
-      throw new SecurityException("Security violation! Access to members in " +
-          this.getClass().getPackage().getName() + " package is disallowed!");
+    String errorMessage = null;
+
+    if (which != Member.PUBLIC && java_lang_System_name.equalsIgnoreCase(clazz.getName())) {
+      errorMessage = "MANAS Security violation: access to " +
+              "non-public java.lang.System members disallowed.";
+    }
+    else if (clazz.getPackage() != null && manas_package_name.equalsIgnoreCase(clazz.getPackage().getName())) {
+      errorMessage = "MANAS Security violation: access to members in " +
+              this.getClass().getPackage().getName() + " package is disallowed.";
+    }
+    if (errorMessage != null) {
+      logger.log(Level.SEVERE, errorMessage, new Throwable());
+      if (throwOnError) {
+        throw new SecurityException(errorMessage);
+      }
     }
   }
 
