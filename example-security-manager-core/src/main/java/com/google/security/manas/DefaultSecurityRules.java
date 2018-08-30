@@ -31,12 +31,12 @@ import java.util.logging.Logger;
  */
 public class DefaultSecurityRules {
 
-  @VisibleForTesting static Supplier<String[]> defaultFontPathProvider = new SunFontPathSupplier();
+  // @VisibleForTesting static Supplier<String[]> defaultFontPathProvider = new SunFontPathSupplier();
 
   private static final Logger logger = Logger.getLogger(DefaultSecurityRules.class.getName());
 
   private DefaultSecurityRules() {}
-  
+
   /**
    * Add default set of permissions for a typical Java web app.
    *
@@ -60,7 +60,7 @@ public class DefaultSecurityRules {
       if (!"/-".equals(Utility.makePathRecursive(path))) {
         policy.addPath(path, sunGraphicsEnvClassName, FileOperation.READ);
         policy.addPath(Utility.makePathRecursive(path), sunGraphicsEnvClassName,
-            FileOperation.READ);
+                FileOperation.READ);
       }
     }
   }
@@ -81,7 +81,7 @@ public class DefaultSecurityRules {
     String bootClassPath = System.getProperty("sun.boot.class.path");
     if (bootClassPath != null) {
       for (String path : Utility.separatePathsAndMakeRecursive(bootClassPath))
-      policy.addPath(path, FileOperation.READ);
+        policy.addPath(path, FileOperation.READ);
     }
 
     String javaLibraryPaths = System.getProperty("java.library.path");
@@ -96,19 +96,19 @@ public class DefaultSecurityRules {
     String tmpDir = System.getenv("java.io.tmpdir");
     if (tmpDir != null) {
       policy.addPath(Utility.makePathRecursive(tmpDir),
-          FileOperation.READ, FileOperation.WRITE, FileOperation.DELETE);
+              FileOperation.READ, FileOperation.WRITE, FileOperation.DELETE);
     }
     policy.addPath("/tmp/-", FileOperation.READ, FileOperation.WRITE, FileOperation.DELETE);
     // just /tmp since some code checks for existence and write permissions
     policy.addPath("/tmp", FileOperation.READ, FileOperation.WRITE);
   }
 
-  private static void addContainerSpecificPermissions(SecurityPolicy policy) { 
+  private static void addContainerSpecificPermissions(SecurityPolicy policy) {
     // TODO(meder): Add this.
   }
 
   // TODO(meder): Unfortunately, this is the best way to get the name of the class
-  @SuppressWarnings("sunapi")  
+  @SuppressWarnings("sunapi")
   private static String getGraphicsEnvironmentClassName() {
     return sun.java2d.SunGraphicsEnvironment.class.getName();
   }
@@ -125,7 +125,7 @@ public class DefaultSecurityRules {
       // TODO(meder): There's currently no other way to retrieve OS-dependent font paths
       @SuppressWarnings("sunapi")
       String fontDirs = sun.font.FontManager.getFontPath("true".equalsIgnoreCase(
-          System.getProperty("sun.java2d.noType1Font")));
+              System.getProperty("sun.java2d.noType1Font")));
       return fontDirs.split(File.pathSeparator);
     }
   }
