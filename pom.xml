@@ -18,6 +18,8 @@
     <modules>
         <module>example-security-manager-core</module>
         <module>example-security-manager-tests</module>
+        <module>example-security-manager-tests-aws</module>
+        <module>example-security-manager-tests-aws-policies</module>
     </modules>
 
     <scm>
@@ -76,6 +78,22 @@
                 <artifactId>example-security-manager-tests</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.atlassian.securitymanager</groupId>
+                <artifactId>example-security-manager-tests-aws</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk-core</artifactId>
+                <version>${aws-java-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk-sqs</artifactId>
+                <version>${aws-java-sdk.version}</version>
+            </dependency>
             <!-- Test dependencies -->
             <dependency>
                 <groupId>junit</groupId>
@@ -95,6 +113,7 @@
         <google.guava.version>18.0</google.guava.version>
         <mockito-core.version>2.21.0</mockito-core.version>
         <junit.version>4.12</junit.version>
+        <aws-java-sdk.version>1.11.179</aws-java-sdk.version>
     </properties>
 
 </project>
