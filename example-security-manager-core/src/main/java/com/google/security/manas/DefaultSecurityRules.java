@@ -53,6 +53,7 @@ public class DefaultSecurityRules {
         addDevicePermissions(policy);
         addContainerSpecificPermissions(policy);
         addMiscPermissions(policy);
+        addMavenRepositoryDirectoryReadOnly(policy);
         loadProperties(policy);
     }
 
@@ -97,6 +98,15 @@ public class DefaultSecurityRules {
         policy.addPath("/tmp/-", FileOperation.READ, FileOperation.WRITE, FileOperation.DELETE);
         // just /tmp since some code checks for existence and write permissions
         policy.addPath("/tmp", FileOperation.READ, FileOperation.WRITE);
+    }
+
+    private static void addMavenRepositoryDirectoryReadOnly(SecurityPolicy policy) {
+        final String userHome = System.getProperty("user.home");
+        if (userHome == null || userHome.equals("")) {
+            return;
+        }
+        String mavenDir = userHome + "/.m2/repository/-";
+        policy.addPath(mavenDir, FileOperation.READ);
     }
 
     private static void addContainerSpecificPermissions(SecurityPolicy policy) {
