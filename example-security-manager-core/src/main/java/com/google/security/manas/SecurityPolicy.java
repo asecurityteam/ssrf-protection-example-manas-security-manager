@@ -22,32 +22,23 @@ package com.google.security.manas;
  * @author Meder Kydyraliev
  */
 public interface SecurityPolicy {
-  /**
-   * Add path with the specified permissions to the security policy enforced by
-   * the Manas Java Security Manager.
-   *
-   * @param path path to a file or directory. See
-   *             {@link java.io.FilePermission} for supported path wildcards.
-   * @param permissions one or more permissions to be allowed on the specified
-   *                    path.
-   */
-  public void addPath(String path, FileOperation... permissions);
+    /**
+     * Add path with the specified permissions to the security policy enforced by the Manas Java Security Manager.
+     *
+     * @param path path to a file or directory. See {@link java.io.FilePermission} for supported path wildcards.
+     * @param permissions one or more permissions to be allowed on the specified path.
+     */
+    public void addPath(String path, FileOperation... permissions);
 
-  /**
-   * Add path with the specified permissions to the security policy enforced by
-   * the Manas Java Security Manager.
-   *
-   * @param path path to a file or directory. See
-   *             {@link java.io.FilePermission} for supported path wildcards.
-   * @param authorizedClass Class to assign the specified file permissions to.
-   *                        This security manager will check for presence of
-   *                        the specified class on the execution stack. This
-   *                        class needs to be as specific as possible (i.e.
-   *                        don't assign sensitive permissions to your main
-   *                        class, instead specify the class that's actually
-   *                        performing the operation on the specified path).
-   * @param permissions one or more permissions to be allowed on the specified
-   *                    path.
-   */
-  public void addPath(String path, String authorizedClass, FileOperation... permissions);
+    /**
+     * Add path with the specified permissions to the security policy enforced by the Manas Java Security Manager.
+     *
+     * @param path path to a file or directory. See {@link java.io.FilePermission} for supported path wildcards.
+     * @param authorizedClass Class to assign the specified file permissions to. This security manager will check for
+     * presence of the specified class on the execution stack. This class needs to be as specific as possible (i.e.
+     * don't assign sensitive permissions to your main class, instead specify the class that's actually performing the
+     * operation on the specified path).
+     * @param permissions one or more permissions to be allowed on the specified path.
+     */
+    public void addPath(String path, String authorizedClass, FileOperation... permissions);
 }

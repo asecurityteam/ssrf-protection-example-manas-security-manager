@@ -23,42 +23,41 @@ package com.google.security.manas;
  */
 public class Utility {
 
-  private Utility() {}
+    private Utility() {
+    }
 
-  public static String makePathRecursive(String path) {
-    if (!path.endsWith("/-")) {
-      path = path.endsWith("/") ? path + "-" : path + "/-";
+    public static String makePathRecursive(String path) {
+        if (!path.endsWith("/-")) {
+            path = path.endsWith("/") ? path + "-" : path + "/-";
+        }
+        return path;
     }
-    return path;
-  }
 
-  public static String[] separatePathsAndMakeRecursive(String paths) {
-    String[] rawPaths = paths.split(System.getProperty("path.separator"));
-    for (int k = 0; k < rawPaths.length; k++) {
-      if (!rawPaths[k].endsWith(".jar")) {
-        rawPaths[k] = Utility.makePathRecursive(rawPaths[k]);
-      }
+    public static String[] separatePathsAndMakeRecursive(String paths) {
+        String[] rawPaths = paths.split(System.getProperty("path.separator"));
+        for (int k = 0; k < rawPaths.length; k++) {
+            if (!rawPaths[k].endsWith(".jar")) {
+                rawPaths[k] = Utility.makePathRecursive(rawPaths[k]);
+            }
+        }
+        return rawPaths;
     }
-    return rawPaths;
-  }
 
-  /**
-   * Checks if currently installed security manager is the singleton instance
-   * of the ManasSecurityManager.
-   *
-   * @return {@code true} if ManasSecurityManager was already installed,
-   * {@code false} otherwise. 
-   */
-  public static boolean isManasSecurityManagerAlreadyInstalled() {
-    SecurityManager currentManager = System.getSecurityManager();
-    if (currentManager == null) {
-      return false;
+    /**
+     * Checks if currently installed security manager is the singleton instance of the ManasSecurityManager.
+     *
+     * @return {@code true} if ManasSecurityManager was already installed, {@code false} otherwise.
+     */
+    public static boolean isManasSecurityManagerAlreadyInstalled() {
+        SecurityManager currentManager = System.getSecurityManager();
+        if (currentManager == null) {
+            return false;
+        }
+        if (currentManager instanceof ManasSecurityManager) {
+            if (currentManager == ManasSecurityManager.getInstance()) {
+                return true;
+            }
+        }
+        return false;
     }
-    if (currentManager instanceof ManasSecurityManager) {
-      if (currentManager == ManasSecurityManager.getInstance()) {
-        return true;
-      }
-    }
-    return false;
-  }
 }

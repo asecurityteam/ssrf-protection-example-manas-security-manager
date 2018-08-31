@@ -18,17 +18,23 @@ package com.google.security.manas;
 
 /**
  * Enumeration of support file operations.
- * 
+ *
  * @author Meder Kydyraliev
  */
 public enum FileOperation {
-  EXEC("execute"),
-  DELETE("delete"),
-  READ("read"),
-  WRITE("write");
+    EXEC("execute"),
+    DELETE("delete"),
+    READ("read"),
+    WRITE("write");
 
-  private final String name;
-  FileOperation(String name) { this.name = name; }
-  String getName() { return name; }
+    private final String name;
+
+    FileOperation(String name) {
+        this.name = name;
+    }
+
+    String getName() {
+        return name;
+    }
 }
 

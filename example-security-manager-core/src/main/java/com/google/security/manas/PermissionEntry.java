@@ -20,23 +20,23 @@ import java.security.Permission;
 
 /**
  * Stores permission and associated authorized class, if any.
- * 
+ *
  * @author Meder Kydyraliev
  */
 class PermissionEntry {
-  private final Permission permission;
-  private final String authorizedClass;
+    private final Permission permission;
+    private final String authorizedClass;
 
-  public PermissionEntry(Permission permission, String authorizedClass) {
-    this.permission = permission;
-    this.authorizedClass = authorizedClass;
-  }
+    public PermissionEntry(Permission permission, String authorizedClass) {
+        this.permission = permission;
+        this.authorizedClass = authorizedClass;
+    }
 
-  public Permission getPermission() {
-    return permission;
-  }
+    public Permission getPermission() {
+        return permission;
+    }
 
-  public String getAuthorizedClass() {
-    return authorizedClass;
-  }
+    public String getAuthorizedClass() {
+        return authorizedClass;
+    }
 }

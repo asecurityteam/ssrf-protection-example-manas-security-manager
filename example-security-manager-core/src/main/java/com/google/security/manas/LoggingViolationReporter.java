@@ -24,15 +24,15 @@ import java.util.logging.Logger;
 
 /**
  * Logs security policy violations along with full stacktrace.
- * 
+ *
  * @author Meder Kydyraliev
  */
 public class LoggingViolationReporter implements com.google.security.manas.SecurityViolationReporter {
-  private static final Logger logger = Logger.getLogger(LoggingViolationReporter.class.getName());
-  
-  @Override
-  public void reportViolation(Permission permission) {
-    Preconditions.checkNotNull(permission);
-    logger.log(Level.SEVERE, "Security policy violation: " + permission, new Throwable());
-  }
+    private static final Logger logger = Logger.getLogger(LoggingViolationReporter.class.getName());
+
+    @Override
+    public void reportViolation(Permission permission) {
+        Preconditions.checkNotNull(permission);
+        logger.log(Level.SEVERE, "Security policy violation: " + permission, new Throwable());
+    }
 }

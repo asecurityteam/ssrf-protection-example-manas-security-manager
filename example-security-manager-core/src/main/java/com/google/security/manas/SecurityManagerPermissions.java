@@ -30,85 +30,84 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author Meder Kydyraliev
  */
 class SecurityManagerPermissions {
-  /**
-   * Map that associates permission type(class) with a list of
-   * {@link PermissionEntry} elements.
-   */
-  private final ConcurrentMap<Class<? extends Permission>, List<PermissionEntry>>
-      permsByPermissionType = new MapMaker().makeMap();
+    /**
+     * Map that associates permission type(class) with a list of {@link PermissionEntry} elements.
+     */
+    private final ConcurrentMap<Class<? extends Permission>, List<PermissionEntry>>
+            permsByPermissionType = new MapMaker().makeMap();
 
-  private boolean isLocked = false;
+    private boolean isLocked = false;
 
-  void lock() {
-    if (isLocked) {
-      throw new IllegalStateException("Permissions are already locked");
-    }
-    isLocked = true;
-  }
-
-  void add(Permission permission) {
-    Preconditions.checkNotNull(permission);
-    addPermission(permission, null);
-  }
-
-  void add(Permission permission, String authorizedClass) {
-    Preconditions.checkNotNull(authorizedClass);
-    Preconditions.checkNotNull(permission);
-    addPermission(permission, authorizedClass);
-  }
-
-  boolean implies(Permission permissionToCheck) {
-    Class<? extends Permission> permClass = permissionToCheck.getClass();
-    List<PermissionEntry> permissions = permsByPermissionType.get(permClass);
-    if (permissions == null) {
-      return false;
-    }
-    for (PermissionEntry permissionClassPair : permissions) {
-      Permission permission = permissionClassPair.getPermission();
-      String authorizedClass = permissionClassPair.getAuthorizedClass();
-      if (permission.implies(permissionToCheck)) {
-        // is there a class specific permission?
-        if (authorizedClass != null) {
-          if (isClassOnStack(authorizedClass)) {
-            return true;
-          }
-        } else {
-          // no class specific permission and permission is allowed
-          return true;
+    void lock() {
+        if (isLocked) {
+            throw new IllegalStateException("Permissions are already locked");
         }
-      }
+        isLocked = true;
     }
-    return false;
-  }
 
-  private void addPermission(Permission permission, String authorizedClass) {
-    throwExceptionIfLocked();
-    Class<? extends Permission> permClass = permission.getClass();
-
-    List<PermissionEntry> freshPermissions =
-        new CopyOnWriteArrayList<PermissionEntry>();
-    List<PermissionEntry> permissions =
-        permsByPermissionType.putIfAbsent(permClass, freshPermissions);
-    if (permissions == null) {
-      permissions = freshPermissions;
+    void add(Permission permission) {
+        Preconditions.checkNotNull(permission);
+        addPermission(permission, null);
     }
-    permissions.add(new PermissionEntry(permission, authorizedClass));
-  }
 
-  private boolean isClassOnStack(String className) {
-    Preconditions.checkNotNull(className);
-    StackTraceElement[] stack = new Throwable().getStackTrace();
-    for (StackTraceElement element : stack) {
-      if (element.getClassName().equals(className)) {
-        return true;
-      }
+    void add(Permission permission, String authorizedClass) {
+        Preconditions.checkNotNull(authorizedClass);
+        Preconditions.checkNotNull(permission);
+        addPermission(permission, authorizedClass);
     }
-    return false;
-  }
 
-  private void throwExceptionIfLocked() {
-    if (isLocked) {
-      throw new IllegalStateException("Locked permissions can't be modified");
+    boolean implies(Permission permissionToCheck) {
+        Class<? extends Permission> permClass = permissionToCheck.getClass();
+        List<PermissionEntry> permissions = permsByPermissionType.get(permClass);
+        if (permissions == null) {
+            return false;
+        }
+        for (PermissionEntry permissionClassPair : permissions) {
+            Permission permission = permissionClassPair.getPermission();
+            String authorizedClass = permissionClassPair.getAuthorizedClass();
+            if (permission.implies(permissionToCheck)) {
+                // is there a class specific permission?
+                if (authorizedClass != null) {
+                    if (isClassOnStack(authorizedClass)) {
+                        return true;
+                    }
+                } else {
+                    // no class specific permission and permission is allowed
+                    return true;
+                }
+            }
+        }
+        return false;
     }
-  }
+
+    private void addPermission(Permission permission, String authorizedClass) {
+        throwExceptionIfLocked();
+        Class<? extends Permission> permClass = permission.getClass();
+
+        List<PermissionEntry> freshPermissions =
+                new CopyOnWriteArrayList<PermissionEntry>();
+        List<PermissionEntry> permissions =
+                permsByPermissionType.putIfAbsent(permClass, freshPermissions);
+        if (permissions == null) {
+            permissions = freshPermissions;
+        }
+        permissions.add(new PermissionEntry(permission, authorizedClass));
+    }
+
+    private boolean isClassOnStack(String className) {
+        Preconditions.checkNotNull(className);
+        StackTraceElement[] stack = new Throwable().getStackTrace();
+        for (StackTraceElement element : stack) {
+            if (element.getClassName().equals(className)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void throwExceptionIfLocked() {
+        if (isLocked) {
+            throw new IllegalStateException("Locked permissions can't be modified");
+        }
+    }
 }
