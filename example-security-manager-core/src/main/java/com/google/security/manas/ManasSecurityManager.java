@@ -85,6 +85,11 @@ public final class ManasSecurityManager extends SecurityManager implements Secur
      */
     public static synchronized ManasSecurityManager getInstance() {
         if (instance == null) {
+            SecurityManagerBehaviourHelper behaviourHelper =
+                    new SecurityManagerBehaviourHelper();
+            behaviourHelper.setUpInetAddressCachePolicy();
+            behaviourHelper.setUpForkJoinWorkerThreadFactory();
+            behaviourHelper.setUpNIOThreadFactory();
             logger.log(Level.INFO, "Creating Manas Java Security Manager");
             instance = new ManasSecurityManager();
             DefaultSecurityRules.addDefaultRules(instance);
