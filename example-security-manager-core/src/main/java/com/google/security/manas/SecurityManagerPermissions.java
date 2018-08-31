@@ -62,7 +62,7 @@ class SecurityManagerPermissions {
 
     boolean implies(Permission permissionToCheck) {
         Class<? extends Permission> permClass = permissionToCheck.getClass();
-        List<PermissionEntry> permissions = permsByPermissionType.get(permClass);
+        List<PermissionEntry> permissions = permissionsForPermissionClass(permClass);
         if (permissions == null) {
             return false;
         }
@@ -72,7 +72,7 @@ class SecurityManagerPermissions {
             if (permission.implies(permissionToCheck)) {
                 // is there a class specific permission?
                 if (authorizedClass != null) {
-                    if (isClassOnStack(authorizedClass)) {
+                    if (isClassOrPackageOnStack(authorizedClass)) {
                         return true;
                     }
                 } else {
@@ -98,11 +98,13 @@ class SecurityManagerPermissions {
         permissions.add(new PermissionEntry(permission, authorizedClass));
     }
 
-    private boolean isClassOnStack(String className) {
+    private boolean isClassOrPackageOnStack(String className) {
         Preconditions.checkNotNull(className);
         StackTraceElement[] stack = new Throwable().getStackTrace();
         for (StackTraceElement element : stack) {
-            if (element.getClassName().equals(className)) {
+            final String elementClass = element.getClassName();
+            if (elementClass.equals(className) ||
+                    className.endsWith(".") && elementClass.startsWith(className)) {
                 return true;
             }
         }
