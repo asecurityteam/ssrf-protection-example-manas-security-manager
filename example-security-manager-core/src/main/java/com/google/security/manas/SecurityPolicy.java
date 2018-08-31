@@ -41,4 +41,6 @@ public interface SecurityPolicy {
      * @param permissions one or more permissions to be allowed on the specified path.
      */
     public void addPath(String path, String authorizedClass, FileOperation... permissions);
+
+    public void addSocket(String host, String authorizedClass, String socketPermissions);
 }

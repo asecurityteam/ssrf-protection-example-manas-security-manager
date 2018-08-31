@@ -16,12 +16,13 @@
 
 package com.google.security.manas;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Supplier;
+import sun.security.util.SecurityConstants;
 
-import java.awt.GraphicsEnvironment;
-import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -34,6 +35,9 @@ public class DefaultSecurityRules {
     // @VisibleForTesting static Supplier<String[]> defaultFontPathProvider = new SunFontPathSupplier();
 
     private static final Logger logger = Logger.getLogger(DefaultSecurityRules.class.getName());
+    private static final String CONFIG_FILE_PROPERTY = "manas.policyfile";
+    private static final String KEY_CLASSES_ALLOWED_TO_CONNECT_TO_AWS_METADATA =
+            "class.permitted.to.connect.to.aws.metadata.resource";
 
     private DefaultSecurityRules() {
     }
@@ -49,6 +53,7 @@ public class DefaultSecurityRules {
         addDevicePermissions(policy);
         addContainerSpecificPermissions(policy);
         addMiscPermissions(policy);
+        loadProperties(policy);
     }
 
     private static void addMiscPermissions(SecurityPolicy policy) {
@@ -104,4 +109,44 @@ public class DefaultSecurityRules {
         return sun.java2d.SunGraphicsEnvironment.class.getName();
     }
 
+    private static void addAwsMetadataClassesToPolicy(
+            Set<String> awsMetadataClasses, SecurityPolicy policy) {
+        final String socketPermissions = SecurityConstants.SOCKET_CONNECT_ACCEPT_ACTION +
+                "," + SecurityConstants.SOCKET_LISTEN_ACTION +
+                "," + SecurityConstants.SOCKET_RESOLVE_ACTION;
+        final String awsMetadataHost = "169.254.169.254";
+        for (String clazz : awsMetadataClasses) {
+            if (!clazz.trim().isEmpty()) {
+                policy.addSocket(awsMetadataHost, clazz, socketPermissions);
+            }
+        }
+    }
+
+    private static void loadProperties(SecurityPolicy policy) {
+        final Properties config = new Properties();
+        String configFile = System.getProperty(CONFIG_FILE_PROPERTY);
+        if (configFile == null) {
+            return;
+        }
+        final InputStream in = DefaultSecurityRules.class.getResourceAsStream(
+                configFile);
+        if (in == null) {
+            throw new RuntimeException(
+                    "Failed to load Manas configuration properties from: " +
+                            configFile);
+        }
+        try {
+            config.load(in);
+            in.close();
+        } catch (IOException e) {
+            throw new RuntimeException(
+                    "Failed to load Manas configuration properties from:" +
+                            configFile + " " + e.getMessage());
+        }
+        final Set<String> classesAllowedToAwsMeta = Utility.getProperty(
+                config, KEY_CLASSES_ALLOWED_TO_CONNECT_TO_AWS_METADATA);
+        if (classesAllowedToAwsMeta != null) {
+            addAwsMetadataClassesToPolicy(classesAllowedToAwsMeta, policy);
+        }
+    }
 }

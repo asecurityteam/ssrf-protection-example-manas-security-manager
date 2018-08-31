@@ -56,6 +56,10 @@ class SecurityManagerPermissions {
         addPermission(permission, authorizedClass);
     }
 
+    List<PermissionEntry> permissionsForPermissionClass(Class permClass) {
+        return permsByPermissionType.get(permClass);
+    }
+
     boolean implies(Permission permissionToCheck) {
         Class<? extends Permission> permClass = permissionToCheck.getClass();
         List<PermissionEntry> permissions = permsByPermissionType.get(permClass);

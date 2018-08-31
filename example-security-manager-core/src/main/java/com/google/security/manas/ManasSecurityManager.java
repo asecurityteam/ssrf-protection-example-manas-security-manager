@@ -18,12 +18,14 @@ package com.google.security.manas;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import sun.security.util.SecurityConstants;
 
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FilePermission;
 import java.lang.reflect.Member;
 import java.net.InetAddress;
+import java.net.SocketPermission;
 import java.security.Permission;
 import java.util.Arrays;
 import java.util.List;
@@ -49,6 +51,8 @@ public final class ManasSecurityManager extends SecurityManager implements Secur
 
     // The singleton instance of Manas Security Manager.
     private static ManasSecurityManager instance = null;
+
+    private static final String AWS_META_HOST = "169.254.169.254";
 
     private static final Logger logger = Logger.getLogger(ManasSecurityManager.class.getName());
 
@@ -286,6 +290,13 @@ public final class ManasSecurityManager extends SecurityManager implements Secur
         addPath(path, authorizedClass.getName(), permissions);
     }
 
+    public void addSocket(String host, String authorizedClass, String socketPermissions) {
+        logger.log(Level.INFO, "Adding permissions: host=" + host +
+                " authorizedClass=" + authorizedClass + " " +
+                socketPermissions);
+        perms.add(new SocketPermission(host, socketPermissions), authorizedClass);
+    }
+
     @Override
     public void checkPermission(Permission perm) {
         disallowSecurityManagerInstallation(perm);
@@ -360,13 +371,18 @@ public final class ManasSecurityManager extends SecurityManager implements Secur
 
     @Override
     public void checkConnect(String host, int port) {
-        // permission is allowed. Overriden for performance reasons.
+        checkConnect(host, port, null);
     }
 
     @Override
     public void checkConnect(String host, int port, Object context) {
-        // permission is allowed. Overriden for performance reasons.
+        if (port != -1 && AWS_META_HOST.equals(host) &&
+                perms.permissionsForPermissionClass(SocketPermission.class) != null) {
+            checkGenericPermission(new SocketPermission(host,
+                    SecurityConstants.SOCKET_CONNECT_ACTION));
+        }
     }
+
 
     @Override
     public void checkListen(int port) {

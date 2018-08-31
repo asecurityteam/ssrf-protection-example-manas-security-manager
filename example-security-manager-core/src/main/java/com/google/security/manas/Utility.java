@@ -16,12 +16,19 @@
 
 package com.google.security.manas;
 
+import com.google.common.collect.ImmutableSet;
+
+import java.util.Properties;
+import java.util.Set;
+
 /**
  * Utility class for ManasSecurityManager
  *
  * @author Meder Kydyraliev
  */
 public class Utility {
+
+    private static final String DELIMITER_REGEX = "\\s+";
 
     private Utility() {
     }
@@ -59,5 +66,22 @@ public class Utility {
             }
         }
         return false;
+    }
+
+    /**
+     * Returns a set of strings matching the given key found in the properties
+     * provided separated by DELIMITER_REGEX.
+     *
+     * @param config the given properties instance
+     * @param key the key to retrieve the property from
+     * @return a set of strings matching the given key found in the properties
+     * provided separated by DELIMITER_REGEX.
+     */
+    public static Set<String> getProperty(Properties config, final String key) {
+        String value = config.getProperty(key);
+        if (value != null && !value.equals("")) {
+            return ImmutableSet.copyOf(value.trim().split(DELIMITER_REGEX));
+        }
+        return null;
     }
 }
