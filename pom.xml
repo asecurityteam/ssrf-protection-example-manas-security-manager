@@ -67,7 +67,7 @@
             </dependency>
             <dependency>
                 <groupId>com.atlassian.securitymanager</groupId>
-                <artifactId>manas-security-manager-core</artifactId>
+                <artifactId>example-security-manager-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!-- Test dependencies -->
