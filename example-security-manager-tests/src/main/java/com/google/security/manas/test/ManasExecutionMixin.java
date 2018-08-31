@@ -1,4 +1,4 @@
-package com.google.security.manas;
+package com.google.security.manas.test;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;

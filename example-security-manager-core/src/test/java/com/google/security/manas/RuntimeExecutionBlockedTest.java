@@ -1,5 +1,6 @@
 package com.google.security.manas;
 
+import com.google.security.manas.test.ManasExecutionMixin;
 import com.google.security.test.RuntimeExecutor;
 import org.junit.Test;
 
@@ -9,7 +10,7 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
 
-public class RuntimeExecutionBlockedTest extends com.google.security.manas.ManasExecutionMixin {
+public class RuntimeExecutionBlockedTest extends ManasExecutionMixin {
     @Test
     public void testNotPermittedRuntimeExecutionIsBlocked() throws IOException, InterruptedException {
         final String expectedErrorMessage = "(\"java.io.FilePermission\" \"echo\" \"execute\")";

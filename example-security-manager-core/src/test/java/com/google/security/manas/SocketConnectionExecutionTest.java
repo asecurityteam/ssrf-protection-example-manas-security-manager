@@ -1,5 +1,6 @@
 package com.google.security.manas;
 
+import com.google.security.manas.test.ManasExecutionMixin;
 import com.google.security.test.SocketConnector;
 import org.junit.Test;
 
