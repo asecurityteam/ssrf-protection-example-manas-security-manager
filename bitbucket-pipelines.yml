@@ -1,0 +1,9 @@
+pipelines:
+  default:
+    - step:
+        name: Java 8
+        image: maven:3.5-jdk-8
+        script:
+          - mvn --version
+          - mvn --batch-mode clean verify javadoc:javadoc
+
