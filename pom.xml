@@ -27,6 +27,32 @@
             <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
+
+    <profiles>
+        <profile>
+            <id>java-9-and-above</id>
+            <activation>
+                <jdk>[1.9,)</jdk>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.0.1</version>
+                        <configuration>
+                            <additionalJOptions>
+                                <additionalJOption>--add-exports=java.base/sun.security.util=ALL-UNNAMED</additionalJOption>
+                                <additionalJOption>--add-exports=java.base/sun.net=ALL-UNNAMED</additionalJOption>
+                                <additionalJOption>--add-exports=java.base/sun.nio.ch=ALL-UNNAMED</additionalJOption>
+                            </additionalJOptions>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
     <build>
         <pluginManagement>
             <plugins>
