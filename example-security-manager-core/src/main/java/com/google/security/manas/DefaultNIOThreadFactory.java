@@ -4,7 +4,7 @@ import java.util.concurrent.ThreadFactory;
 
 /**
  * Copy of the default ThreadFactory code used in {@link sun.nio.ch.ThreadPool}
- * when no is security manager active.
+ * when no security manager is active.
  */
 public class DefaultNIOThreadFactory implements ThreadFactory {
 
