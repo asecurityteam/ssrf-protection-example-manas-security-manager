@@ -18,6 +18,7 @@ package com.google.security.manas;
 
 import com.google.common.collect.ImmutableSet;
 
+import java.net.InetAddress;
 import java.util.Properties;
 import java.util.Set;
 
@@ -83,5 +84,18 @@ public class Utility {
             return ImmutableSet.copyOf(value.trim().split(DELIMITER_REGEX));
         }
         return null;
+    }
+
+    /***
+     * Checks if the given address is a private address.
+     * @param address the address to check.
+     * @return {@code true} if the given address is a private address,
+     * {@code false} otherwise.
+     */
+    public static boolean isAPrivateAddress(InetAddress address) {
+        return address.isLinkLocalAddress() ||
+                address.isSiteLocalAddress() ||
+                address.isLoopbackAddress();
+
     }
 }
