@@ -98,4 +98,20 @@ public class Utility {
                 address.isLoopbackAddress();
 
     }
+
+    /***
+     * Converts an IP address into a format suitable for logging.
+     * @param ipAddress the IP address to format.
+     * @return null if the address was null, otherwise the IP address formated
+     * in a format suitable for logging.
+     */
+    public static String formatIPAddressForLog(String ipAddress) {
+        if (ipAddress == null) {
+            return null;
+        }
+        if (!ipAddress.startsWith("[") && ipAddress.indexOf(':') != -1) {
+            ipAddress = "[" + ipAddress + "]";
+        }
+        return ipAddress;
+    }
 }
