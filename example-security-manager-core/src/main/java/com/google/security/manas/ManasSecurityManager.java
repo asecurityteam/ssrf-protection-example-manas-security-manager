@@ -18,6 +18,11 @@ package com.google.security.manas;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.collect.Sets;
+import com.google.common.net.InetAddresses;
 import sun.security.util.SecurityConstants;
 
 import java.io.File;
@@ -26,9 +31,13 @@ import java.io.FilePermission;
 import java.lang.reflect.Member;
 import java.net.InetAddress;
 import java.net.SocketPermission;
+import java.net.UnknownHostException;
 import java.security.Permission;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -57,6 +66,21 @@ public final class ManasSecurityManager extends SecurityManager implements Secur
     private static final Logger logger = Logger.getLogger(ManasSecurityManager.class.getName());
 
     private static final String LOGGING_MODE_PROPERTY_NAME = "manas.insecure";
+    private static final String LOG_CHECK_CONNECT_NAME = "manas.log.checkconnect";
+    private static final String LOG_CHECK_CONNECT_STACK_NAME = "manas.log.checkconnect.stack";
+    private static final String LOG_CHECK_CONNECT_INTERNAL_ONLY_NAME = "manas.log.checkconnect.internalonly";
+
+    private LoadingCache<InetAddress, Set<String>> addressToDnsCache =
+            CacheBuilder.newBuilder().maximumSize(1000).build(
+                    new CacheLoader<InetAddress, Set<String>>()
+                    {
+                        @Override
+                        public Set<String> load(InetAddress inetAddress)
+                        {
+                            return Sets.newConcurrentHashSet();
+                        }
+                    }
+            );
 
     @VisibleForTesting
     boolean denyManagerUninstallation = true;
@@ -74,10 +98,18 @@ public final class ManasSecurityManager extends SecurityManager implements Secur
         }
     };
 
+    private boolean logCheckConnectCalls;
+    private boolean logCheckConnectCallsStack;
+    private boolean logCheckConnectCallsInternalOnly;
+
+
     private ManasSecurityManager() {
         if (System.getProperty(LOGGING_MODE_PROPERTY_NAME) != null) {
             throwOnError = false;
         }
+        logCheckConnectCalls = Boolean.getBoolean(LOG_CHECK_CONNECT_NAME);
+        logCheckConnectCallsStack = Boolean.getBoolean(LOG_CHECK_CONNECT_STACK_NAME);
+        logCheckConnectCallsInternalOnly = Boolean.getBoolean(LOG_CHECK_CONNECT_INTERNAL_ONLY_NAME);
         addReporter(new LoggingViolationReporter());
         if (throwOnError) {
             logger.log(Level.INFO, "SecurityException will be thrown on security policy violations");
@@ -380,6 +412,63 @@ public final class ManasSecurityManager extends SecurityManager implements Secur
                 perms.permissionsForPermissionClass(SocketPermission.class) != null) {
             checkGenericPermission(new SocketPermission(host,
                     SecurityConstants.SOCKET_CONNECT_ACTION));
+        }
+        if (logCheckConnectCalls && !isCheckRecursive()) {
+            try {
+                inCheck.set(Boolean.TRUE);
+                logCheckConnect(host, port);
+                inCheck.set(Boolean.FALSE);
+            } finally {
+                inCheck.set(Boolean.FALSE);
+            }
+        }
+    }
+
+    /**
+     * Fill in the cache of addresses -> name for the given name.
+     */
+    private void cacheAddressForName(String host) throws UnknownHostException {
+        for (InetAddress address : InetAddress.getAllByName(host)) {
+            if (!logCheckConnectCallsInternalOnly || Utility.isAPrivateAddress(address)) {
+                Set<String> hosts = addressToDnsCache.getUnchecked(address);
+                if (!hosts.contains(host)) {
+                    if (hosts.size() >= 10) {
+                        logger.warning("Not adding host entry cache for " +
+                                Utility.formatIPAddressForLog(address.getHostAddress()) +
+                                        " " + host);
+                    } else {
+                        hosts.add(host);
+                    }
+                }
+            }
+        }
+    }
+
+    private void logCheckConnect(String host, int port) {
+        Throwable throwable = null;
+        if (logCheckConnectCallsStack) {
+            throwable = new Throwable();
+        }
+        if (!InetAddresses.isInetAddress(host)) {
+            try {
+                cacheAddressForName(host);
+            } catch (UnknownHostException e) {
+            }
+        } else {
+            try {
+                InetAddress inetAddress = InetAddress.getByName(host);
+                if (!logCheckConnectCallsInternalOnly ||
+                        (!Utility.isAPrivateAddress(inetAddress) && logCheckConnectCallsInternalOnly)
+                ) {
+                    final String ipForLog = Utility.formatIPAddressForLog(host);
+                    SortedSet<String> hosts = new TreeSet<>();
+                    hosts.addAll(addressToDnsCache.asMap().getOrDefault(inetAddress,
+                            new TreeSet<>()));
+                    logger.log(Level.INFO, "checkConnect ip: " +
+                            ipForLog + ":" + port + " (" + hosts + ")", throwable);
+                }
+            } catch (UnknownHostException e) {
+            }
         }
     }
 
