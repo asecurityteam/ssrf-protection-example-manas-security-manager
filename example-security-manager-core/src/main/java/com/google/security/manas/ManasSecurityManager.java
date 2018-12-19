@@ -339,7 +339,6 @@ public final class ManasSecurityManager extends SecurityManager implements Secur
         disallowSecurityManagerInstallation(perm);
     }
 
-    @Override
     public void checkMemberAccess(Class<?> clazz, int which) {
         // disallow access to private members of java.lang.System, since it is
         // possible to obtain java.lang.System's "security" using reflection and
@@ -503,24 +502,29 @@ public final class ManasSecurityManager extends SecurityManager implements Secur
         // permission is allowed. Overriden for performance reasons.
     }
 
-    @Override
     public void checkSystemClipboardAccess() {
         // permission is allowed. Overriden for performance reasons.
     }
 
-    @Override
     public void checkAwtEventQueueAccess() {
         // permission is allowed. Overriden for performance reasons.
     }
 
     @Override
-    public void checkPackageAccess(String pkg) {
-        // permission is allowed. Overriden for performance reasons.
+    public void checkPackageDefinition(String pkg) {
+        if (pkg.startsWith("com.google.security.manas")) {
+            checkPermission(
+                    new RuntimePermission("defineClassInPackage." + pkg));
+        }
     }
 
     @Override
-    public void checkPackageDefinition(String pkg) {
-        // permission is allowed. Overriden for performance reasons.
+    public void checkPackageAccess(String pkg) {
+        super.checkPackageAccess(pkg);
+        if (pkg.startsWith("com.google.security.manas")) {
+            checkPermission(
+                    new RuntimePermission("defineClassInPackage." + pkg));
+        }
     }
 
     @Override
