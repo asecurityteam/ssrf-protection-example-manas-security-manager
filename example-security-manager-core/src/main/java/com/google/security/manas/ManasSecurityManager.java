@@ -23,6 +23,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
+import jdk.internal.reflect.Reflection;
 import sun.security.util.SecurityConstants;
 
 import java.io.File;
@@ -33,6 +34,7 @@ import java.net.InetAddress;
 import java.net.SocketPermission;
 import java.net.UnknownHostException;
 import java.security.Permission;
+import java.security.Security;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -121,6 +123,10 @@ public final class ManasSecurityManager extends SecurityManager implements Secur
      */
     public static synchronized ManasSecurityManager getInstance() {
         if (instance == null) {
+            Reflection.registerFieldsToFilter(ManasSecurityManager.class,
+                    "throwOnError", "inCheck"
+                    );
+            Security.setProperty("package.access", (Security.getProperty("package.access") + "," + manas_package_name +"."));
             SecurityManagerBehaviourHelper behaviourHelper =
                     new SecurityManagerBehaviourHelper();
             behaviourHelper.setUpInetAddressCachePolicy();
