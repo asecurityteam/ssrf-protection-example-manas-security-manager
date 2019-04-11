@@ -27,6 +27,9 @@ public abstract class ManasExecutionMixin {
         if (policyFileName != null) {
             parts.add("-Dmanas.policyfile=" + policyFileName);
         }
+        if (System.getProperty("java.version").compareTo("1.9") >= 0) {
+            parts.add("--add-exports=java.base/jdk.internal.reflect=ALL-UNNAMED");
+        }
         parts.add("-classpath");
         parts.add(System.getProperty("java.class.path") +
                 System.getProperty("sun.boot.class.path"));
