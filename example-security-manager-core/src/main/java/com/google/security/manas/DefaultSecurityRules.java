@@ -60,6 +60,8 @@ public class DefaultSecurityRules {
     private static void addMiscPermissions(SecurityPolicy policy) {
         // AWT determines Linux distribution by attempting to read various /etc/*-release files
         policy.addPath("/etc/*", java.awt.GraphicsEnvironment.class.getName(), FileOperation.READ);
+        // java cacerts
+        policy.addPath("/etc/ssl/certs/java/cacerts", FileOperation.READ);
     }
 
     private static void addDevicePermissions(SecurityPolicy policy) {
@@ -110,7 +112,8 @@ public class DefaultSecurityRules {
     }
 
     private static void addContainerSpecificPermissions(SecurityPolicy policy) {
-        // TODO(meder): Add this.
+        policy.addPath("/proc/self/mountinfo", FileOperation.READ);
+        policy.addPath("/proc/self/cgroup", FileOperation.READ);
     }
 
     // TODO(meder): Unfortunately, this is the best way to get the name of the class
