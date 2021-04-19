@@ -5,6 +5,9 @@ This repository contains a fork of the [Manas security manager](https://code.goo
 The security manager in this repository is not intended for direct usage.
 However, you can fork and make available an artifact based upon this code.
 
+The main branch supports JDK 11 & JDK 8 support is found on the `pre-jdk-11` branch.
+
+
 Tests
 =====
 
