@@ -110,7 +110,8 @@ public class DefaultSecurityRules {
     }
 
     private static void addContainerSpecificPermissions(SecurityPolicy policy) {
-        // TODO(meder): Add this.
+        policy.addPath("/proc/self/mountinfo", FileOperation.READ);
+        policy.addPath("/proc/self/cgroup", FileOperation.READ);
     }
 
     // TODO(meder): Unfortunately, this is the best way to get the name of the class
