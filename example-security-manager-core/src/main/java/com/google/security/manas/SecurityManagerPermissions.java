@@ -31,7 +31,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 class SecurityManagerPermissions {
     /**
-     * Map that associates permission type(class) with a list of {@link PermissionEntry} elements.
+     * Map that associates permission type(class) with a list of
+     * {@link PermissionEntry} elements.
      */
     private final ConcurrentMap<Class<? extends Permission>, List<PermissionEntry>>
             permsByPermissionType = new MapMaker().makeMap();
@@ -66,13 +67,17 @@ class SecurityManagerPermissions {
         if (permissions == null) {
             return false;
         }
+        StackTraceElement[] stack = null;
         for (PermissionEntry permissionClassPair : permissions) {
             Permission permission = permissionClassPair.getPermission();
             String authorizedClass = permissionClassPair.getAuthorizedClass();
             if (permission.implies(permissionToCheck)) {
                 // is there a class specific permission?
                 if (authorizedClass != null) {
-                    if (isClassOrPackageOnStack(authorizedClass)) {
+                    if (stack == null) {
+                        stack = new Throwable().getStackTrace();
+                    }
+                    if (isClassOrPackageOnStack(authorizedClass, stack)) {
                         return true;
                     }
                 } else {
@@ -98,9 +103,9 @@ class SecurityManagerPermissions {
         permissions.add(new PermissionEntry(permission, authorizedClass));
     }
 
-    private boolean isClassOrPackageOnStack(String className) {
+    private boolean isClassOrPackageOnStack(String className, StackTraceElement[] stack) {
         Preconditions.checkNotNull(className);
-        StackTraceElement[] stack = new Throwable().getStackTrace();
+        Preconditions.checkNotNull(stack);
         for (StackTraceElement element : stack) {
             final String elementClass = element.getClassName();
             if (elementClass.equals(className) ||
