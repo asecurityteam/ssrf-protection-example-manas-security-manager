@@ -37,7 +37,8 @@ public abstract class ManasExecutionMixin {
     public String assertNotBlocked(Process process, String expectedOutput)
             throws InterruptedException, IOException {
         String errorOutput = checkStdErrOutput(process, expectedOutput);
-        assertEquals(0, process.exitValue());
+        String message = " 0 != " + process.exitValue() + " - " + errorOutput;
+        assertEquals(message, 0, process.exitValue());
         return errorOutput;
     }
 

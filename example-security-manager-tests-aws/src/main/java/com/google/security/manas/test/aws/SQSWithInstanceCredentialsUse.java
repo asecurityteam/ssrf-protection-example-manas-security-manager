@@ -27,7 +27,8 @@ public class SQSWithInstanceCredentialsUse {
         } catch (AmazonSQSException e) {
             // expected.
         } catch (SdkClientException e) {
-            if (!e.getCause().getClass().equals(SocketTimeoutException.class)) {
+            if (!e.getMessage().contains("The requested metadata is not found at") &&
+                    !e.getCause().getClass().equals(SocketTimeoutException.class)) {
                 throw new RuntimeException();
             }
         }
