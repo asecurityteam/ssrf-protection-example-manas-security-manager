@@ -23,6 +23,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
+import jdk.internal.reflect.Reflection;
 import sun.security.util.SecurityConstants;
 
 import java.io.File;
@@ -33,6 +34,7 @@ import java.net.InetAddress;
 import java.net.SocketPermission;
 import java.net.UnknownHostException;
 import java.security.Permission;
+import java.security.Security;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -121,6 +123,10 @@ public final class ManasSecurityManager extends SecurityManager implements Secur
      */
     public static synchronized ManasSecurityManager getInstance() {
         if (instance == null) {
+            Reflection.registerFieldsToFilter(
+                    ManasSecurityManager.class, ManasSecurityManager.getFieldNames());
+            Security.setProperty("package.access", (Security.getProperty("package.access") +
+                    "," + manas_package_name +"."));
             SecurityManagerBehaviourHelper behaviourHelper =
                     new SecurityManagerBehaviourHelper();
             behaviourHelper.setUpInetAddressCachePolicy();
@@ -138,6 +144,38 @@ public final class ManasSecurityManager extends SecurityManager implements Secur
     ManasSecurityManager(SecurityViolationReporter... reporters) {
         Preconditions.checkArgument(reporters.length > 0);
         this.reporters.addAll(Arrays.asList(reporters));
+    }
+
+    /**
+     * This methods returns the names of fields of this class.
+     * This method exists to avoid accessing this class with reflection and
+     * therefore caching reflection information for this class prior to
+     * fields being registered as being filtered out from reflection.
+     * The reflection caching behaviour currently can be observed in
+     * java.lang.Class.privateGetDeclaredFields .
+     */
+    @VisibleForTesting
+    static String [] getFieldNames() {
+        return new String[]{
+                "throwOnError",
+                "reporters",
+                "instance",
+                "AWS_META_HOST",
+                "logger",
+                "LOGGING_MODE_PROPERTY_NAME",
+                "LOG_CHECK_CONNECT_NAME",
+                "LOG_CHECK_CONNECT_STACK_NAME",
+                "LOG_CHECK_CONNECT_INTERNAL_ONLY_NAME",
+                "addressToDnsCache",
+                "denyManagerUninstallation",
+                "perms",
+                "java_lang_System_name",
+                "manas_package_name",
+                "inCheck",
+                "logCheckConnectCalls",
+                "logCheckConnectCallsStack",
+                "logCheckConnectCallsInternalOnly",
+        };
     }
 
     /**
@@ -339,7 +377,6 @@ public final class ManasSecurityManager extends SecurityManager implements Secur
         disallowSecurityManagerInstallation(perm);
     }
 
-    @Override
     public void checkMemberAccess(Class<?> clazz, int which) {
         // disallow access to private members of java.lang.System, since it is
         // possible to obtain java.lang.System's "security" using reflection and
@@ -503,23 +540,11 @@ public final class ManasSecurityManager extends SecurityManager implements Secur
         // permission is allowed. Overriden for performance reasons.
     }
 
-    @Override
     public void checkSystemClipboardAccess() {
         // permission is allowed. Overriden for performance reasons.
     }
 
-    @Override
     public void checkAwtEventQueueAccess() {
-        // permission is allowed. Overriden for performance reasons.
-    }
-
-    @Override
-    public void checkPackageAccess(String pkg) {
-        // permission is allowed. Overriden for performance reasons.
-    }
-
-    @Override
-    public void checkPackageDefinition(String pkg) {
         // permission is allowed. Overriden for performance reasons.
     }
 
@@ -530,6 +555,10 @@ public final class ManasSecurityManager extends SecurityManager implements Secur
 
     @Override
     public void checkSecurityAccess(String target) {
-        // permission is allowed. Overriden for performance reasons.
+        if (target != null && target.equals("setProperty.package.access")) {
+            if (throwOnError) {
+                throw new SecurityException("Changing package.access is not allowed.");
+            }
+        }
     }
 }

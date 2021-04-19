@@ -23,16 +23,6 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <configuration>
-                    <instructions>
-                        <Export-Package>
-                            com.google.security.manas.*;version="${project.version}"
-                        </Export-Package>
-                        <Import-Package>
-                            com.google.common.*
-                        </Import-Package>
-                    </instructions>
-                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -19,9 +19,25 @@ public class RuntimeExecutor {
         testsetUpInetAddressCachePolicy();
         testSetUpForkJoinWorkerThreadFactory();
         testSetUpNIOThreadFactory();
-
+        testModifySecurityManagerProperties();
         // Test execution.
         Runtime.getRuntime().exec("echo command-argument");
+    }
+
+    public static void testModifySecurityManagerProperties() throws IllegalAccessException {
+        try {
+            Security.setProperty("package.access", ".");
+            throw new RuntimeException("Was able to modify package.access");
+        }
+        catch (java.lang.SecurityException e) {}
+        try {
+            Class clazz = ManasSecurityManager.getInstance().getClass();
+            Field field = clazz.getDeclaredField("throwOnError");
+            field.setAccessible(true);
+            field.set(ManasSecurityManager.getInstance(), false);
+            throw new RuntimeException("Was able to modify throwOnError");
+        }
+        catch (NoSuchFieldException e) {}
     }
 
     public static void testsetUpInetAddressCachePolicy() {
