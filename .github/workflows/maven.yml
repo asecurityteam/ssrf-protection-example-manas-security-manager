@@ -10,12 +10,7 @@ on:
     branches: [ master ]
 
 jobs:
-  vm:
-    runs-on: ubuntu-latest
-    steps:
-      - run: "echo 'see the container'"
-
-  container:
+  build:
     container: "maven:3.5-jdk-8"
     runs-on: ubuntu-latest
 
