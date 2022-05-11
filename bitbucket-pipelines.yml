@@ -2,7 +2,7 @@ pipelines:
   default:
     - step:
         name: Java 11
-        image: maven:3.6-jdk-11
+        image: maven:3.8-jdk-11
         script:
         - mvn --version
         - mvn --batch-mode clean verify javadoc:javadoc
