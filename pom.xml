@@ -186,7 +186,7 @@
         <google.guava.version>31.1-jre</google.guava.version>
         <mockito-core.version>3.12.4</mockito-core.version>
         <junit.version>4.13.2</junit.version>
-        <aws-java-sdk.version>1.12.217</aws-java-sdk.version>
+        <aws-java-sdk.version>1.12.632</aws-java-sdk.version>
     </properties>
 
 </project>
