@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    container: "maven:3.6-jdk-11"
+    container: "maven:3.8-jdk-11"
     runs-on: ubuntu-latest
 
     steps:
