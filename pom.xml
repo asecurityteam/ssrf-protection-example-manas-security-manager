@@ -183,7 +183,7 @@
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <google.guava.version>33.4.0-jre</google.guava.version>
+        <google.guava.version>33.5.0-jre</google.guava.version>
         <mockito-core.version>5.20.0</mockito-core.version>
         <junit.version>4.13.2</junit.version>
         <aws-java-sdk.version>1.12.793</aws-java-sdk.version>
